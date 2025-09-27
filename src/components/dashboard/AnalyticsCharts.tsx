@@ -9,11 +9,15 @@ const generateMockData = (points: number = 20) => {
   }));
 };
 
-const commentsData = generateMockData();
-const subscribersData = generateMockData();
-const likesData = generateMockData();
+// Empty data for disconnected state
+const generateEmptyData = (points: number = 20) => {
+  return Array.from({ length: points }, (_, i) => ({
+    time: i,
+    value: 0,
+  }));
+};
 
-const ChartCard = ({ 
+const ChartCard = ({
   title, 
   data, 
   color, 
@@ -71,7 +75,11 @@ const ChartCard = ({
   </div>
 );
 
-const AnalyticsCharts = () => {
+const AnalyticsCharts = ({ isConnected }: { isConnected: boolean }) => {
+  const commentsData = isConnected ? generateMockData() : generateEmptyData();
+  const subscribersData = isConnected ? generateMockData() : generateEmptyData();
+  const likesData = isConnected ? generateMockData() : generateEmptyData();
+
   return (
     <section className="mb-8">
       <h2 className="text-2xl font-bold mb-6 text-foreground">Live Analytics</h2>
@@ -82,7 +90,7 @@ const AnalyticsCharts = () => {
           data={commentsData}
           color="dashboard-chart-primary"
           icon={TrendingUp}
-          currentValue={42}
+          currentValue={isConnected ? 42 : 0}
         />
         
         <ChartCard
@@ -90,7 +98,7 @@ const AnalyticsCharts = () => {
           data={subscribersData}
           color="dashboard-chart-secondary"
           icon={Users}
-          currentValue={18}
+          currentValue={isConnected ? 18 : 0}
         />
         
         <ChartCard
@@ -98,7 +106,7 @@ const AnalyticsCharts = () => {
           data={likesData}
           color="dashboard-chart-accent"
           icon={Heart}
-          currentValue={156}
+          currentValue={isConnected ? 156 : 0}
         />
       </div>
     </section>

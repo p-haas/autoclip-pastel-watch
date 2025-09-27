@@ -18,9 +18,9 @@ const Dashboard = () => {
       
       <main className="max-w-7xl mx-auto px-6 pb-12">
         <VideoSection isConnected={isConnected} setIsConnected={setIsConnected} />
-        <AnalyticsCharts />
-        <RecapChart />
-        <ClipsTable />
+        <AnalyticsCharts isConnected={isConnected} />
+        <RecapChart isConnected={isConnected} />
+        <ClipsTable isConnected={isConnected} />
       </main>
     </div>
   );

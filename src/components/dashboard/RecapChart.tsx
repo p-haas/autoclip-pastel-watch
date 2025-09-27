@@ -2,22 +2,36 @@ import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, ReferenceL
 import { Activity } from "lucide-react";
 
 // Mock data combining all metrics
-const recapData = Array.from({ length: 50 }, (_, i) => {
-  const baseValue = 50;
-  const spike1 = i >= 15 && i <= 20 ? 40 : 0;
-  const spike2 = i >= 35 && i <= 40 ? 60 : 0;
-  const noise = Math.random() * 20 - 10;
-  
-  return {
-    time: i,
-    composite: baseValue + spike1 + spike2 + noise,
-    comments: 30 + Math.sin(i * 0.3) * 15 + noise * 0.5,
-    subscribers: 20 + Math.cos(i * 0.2) * 10 + noise * 0.3,
-    likes: 40 + Math.sin(i * 0.4) * 20 + noise * 0.7,
-  };
-});
+const generateRecapData = () => {
+  return Array.from({ length: 50 }, (_, i) => {
+    const baseValue = 50;
+    const spike1 = i >= 15 && i <= 20 ? 40 : 0;
+    const spike2 = i >= 35 && i <= 40 ? 60 : 0;
+    const noise = Math.random() * 20 - 10;
+    
+    return {
+      time: i,
+      composite: baseValue + spike1 + spike2 + noise,
+      comments: 30 + Math.sin(i * 0.3) * 15 + noise * 0.5,
+      subscribers: 20 + Math.cos(i * 0.2) * 10 + noise * 0.3,
+      likes: 40 + Math.sin(i * 0.4) * 20 + noise * 0.7,
+    };
+  });
+};
 
-const RecapChart = () => {
+// Empty data for disconnected state
+const generateEmptyRecapData = () => {
+  return Array.from({ length: 50 }, (_, i) => ({
+    time: i,
+    composite: 0,
+    comments: 0,
+    subscribers: 0,
+    likes: 0,
+  }));
+};
+
+const RecapChart = ({ isConnected }: { isConnected: boolean }) => {
+  const recapData = isConnected ? generateRecapData() : generateEmptyRecapData();
   return (
     <section className="mb-8">
       <div className="bg-card rounded-2xl p-6 shadow-lg hover-lift">
