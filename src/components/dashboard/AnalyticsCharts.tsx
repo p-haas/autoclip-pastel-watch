@@ -94,7 +94,7 @@ const AnalyticsCharts = () => {
         />
         
         <ChartCard
-          title="Likes"
+          title="Viewers"
           data={likesData}
           color="dashboard-chart-accent"
           icon={Heart}
