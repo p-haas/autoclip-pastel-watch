@@ -76,7 +76,7 @@ const AnalyticsCharts = () => {
     <section className="mb-8">
       <h2 className="text-2xl font-bold mb-6 text-foreground">Live Analytics</h2>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6">
         <ChartCard
           title="Comments per second"
           data={commentsData}
