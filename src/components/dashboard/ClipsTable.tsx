@@ -60,7 +60,7 @@ const mockClips = [
   }
 ];
 
-const ClipsTable = ({ isConnected }: { isConnected: boolean }) => {
+const ClipsTable = ({ isConnected, resetTrigger }: { isConnected: boolean; resetTrigger?: number }) => {
   const [clips, setClips] = useState(isConnected ? mockClips : []);
   const [selectedClip, setSelectedClip] = useState<any>(null);
   const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
@@ -70,7 +70,17 @@ const ClipsTable = ({ isConnected }: { isConnected: boolean }) => {
   // Update clips when connection changes
   useEffect(() => {
     setClips(isConnected ? mockClips : []);
+    if (!isConnected) {
+      setPublishedClips(new Set());
+    }
   }, [isConnected]);
+
+  // Reset published clips when resetTrigger changes
+  useEffect(() => {
+    if (resetTrigger !== undefined) {
+      setPublishedClips(new Set());
+    }
+  }, [resetTrigger]);
 
   const socialPlatforms = [
     { id: 'twitter', name: 'Twitter', icon: '𝕏' },

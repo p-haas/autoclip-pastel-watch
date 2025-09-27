@@ -7,9 +7,12 @@ import ClipsTable from "@/components/dashboard/ClipsTable";
 
 const Dashboard = () => {
   const [isConnected, setIsConnected] = useState(false);
+  const [resetTrigger, setResetTrigger] = useState(0);
 
   const resetConnection = () => {
     setIsConnected(false);
+    // Trigger reset for clips table
+    setResetTrigger(prev => prev + 1);
   };
 
   return (
@@ -20,7 +23,7 @@ const Dashboard = () => {
         <VideoSection isConnected={isConnected} setIsConnected={setIsConnected} />
         <AnalyticsCharts isConnected={isConnected} />
         <RecapChart isConnected={isConnected} />
-        <ClipsTable isConnected={isConnected} />
+        <ClipsTable isConnected={isConnected} resetTrigger={resetTrigger} />
       </main>
     </div>
   );
