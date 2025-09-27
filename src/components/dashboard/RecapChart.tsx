@@ -58,25 +58,25 @@ const RecapChart = ({ isConnected }: { isConnected: boolean }) => {
       time: timeToSeconds("2:34:12"), 
       composite: 85, 
       timestamp: "2:34:12",
-      thumbnail: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=160&h=90&fit=crop&crop=center"
+      thumbnail: "https://picsum.photos/80/45?random=1"
     },
     { 
       time: timeToSeconds("2:28:45"), 
       composite: 78, 
       timestamp: "2:28:45",
-      thumbnail: "https://images.unsplash.com/photo-1614680376573-df3480f75bff?w=160&h=90&fit=crop&crop=center"
+      thumbnail: "https://picsum.photos/80/45?random=2"
     },
     { 
       time: timeToSeconds("2:15:33"), 
       composite: 72, 
       timestamp: "2:15:33",
-      thumbnail: "https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=160&h=90&fit=crop&crop=center"
+      thumbnail: "https://picsum.photos/80/45?random=3"
     },
     { 
       time: timeToSeconds("1:58:21"), 
       composite: 68, 
       timestamp: "1:58:21",
-      thumbnail: "https://images.unsplash.com/photo-1614680376408-81e91ffe3db7?w=160&h=90&fit=crop&crop=center"
+      thumbnail: "https://picsum.photos/80/45?random=4"
     }
   ] : [];
   return (
@@ -92,7 +92,7 @@ const RecapChart = ({ isConnected }: { isConnected: boolean }) => {
           </div>
         </div>
         
-        <div className="h-64 relative">
+        <div className="h-64 relative pt-16">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={recapData}>
               <XAxis 
@@ -149,14 +149,18 @@ const RecapChart = ({ isConnected }: { isConnected: boolean }) => {
             return (
               <div
                 key={`preview-${index}`}
-                className="absolute top-[-50px] transform -translate-x-1/2"
+                className="absolute top-2 transform -translate-x-1/2 z-10"
                 style={{ left: `${leftPosition}%` }}
               >
                 <div className="bg-card border border-destructive rounded-lg p-1 shadow-lg">
                   <img 
                     src={marker.thumbnail}
                     alt="Clip preview"
-                    className="w-10 h-6 object-cover rounded"
+                    className="w-10 h-6 object-cover rounded block"
+                    onError={(e) => {
+                      console.log('Image failed to load:', marker.thumbnail);
+                      e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iNDUiIHZpZXdCb3g9IjAgMCA4MCA0NSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iODAiIGhlaWdodD0iNDUiIGZpbGw9IiNGM0Y0RjYiLz48dGV4dCB4PSI0MCIgeT0iMjQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM2RjczODAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiI+Q2xpcDwvdGV4dD48L3N2Zz4=';
+                    }}
                   />
                   <p className="text-[10px] text-center mt-0.5 font-mono">{marker.timestamp}</p>
                 </div>
