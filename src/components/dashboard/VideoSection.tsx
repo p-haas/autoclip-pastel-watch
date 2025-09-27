@@ -64,7 +64,6 @@ const VideoSection = () => {
               autoPlay
               loop
               muted
-              controls
             >
               <source src={demoVideo} type="video/mp4" />
               Your browser does not support the video tag.
