@@ -65,6 +65,7 @@ const ClipsTable = ({ isConnected }: { isConnected: boolean }) => {
   const [selectedClip, setSelectedClip] = useState<any>(null);
   const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
+  const [publishedClips, setPublishedClips] = useState<Set<number>>(new Set());
 
   // Update clips when connection changes
   useEffect(() => {
@@ -85,6 +86,11 @@ const ClipsTable = ({ isConnected }: { isConnected: boolean }) => {
     setSelectedPlatforms([]);
   };
 
+  const handleViewAnalytics = (clip: any) => {
+    console.log('Viewing analytics for clip:', clip.id);
+    // Add analytics view logic here
+  };
+
   const handlePlatformToggle = (platformId: string) => {
     setSelectedPlatforms(prev => 
       prev.includes(platformId) 
@@ -95,7 +101,8 @@ const ClipsTable = ({ isConnected }: { isConnected: boolean }) => {
 
   const handlePublishToSocial = () => {
     console.log('Publishing clip:', selectedClip.id, 'to platforms:', selectedPlatforms);
-    // Add publish logic here
+    // Mark clip as published
+    setPublishedClips(prev => new Set([...prev, selectedClip.id]));
     setIsPublishModalOpen(false);
   };
 
@@ -194,15 +201,26 @@ const ClipsTable = ({ isConnected }: { isConnected: boolean }) => {
                       </Badge>
                     </td>
                     <td className="p-4">
-                      <Button 
-                        size="sm" 
-                        onClick={() => handlePublish(clip)}
-                        disabled={clip.status !== 'Ready'}
-                        className="bg-primary hover:bg-primary/90"
-                      >
-                        <Upload className="h-4 w-4 mr-2" />
-                        Publish
-                      </Button>
+                      {publishedClips.has(clip.id) ? (
+                        <Button 
+                          size="sm" 
+                          onClick={() => handleViewAnalytics(clip)}
+                          variant="outline"
+                        >
+                          <TrendingUp className="h-4 w-4 mr-2" />
+                          View Analytics
+                        </Button>
+                      ) : (
+                        <Button 
+                          size="sm" 
+                          onClick={() => handlePublish(clip)}
+                          disabled={clip.status !== 'Ready'}
+                          className="bg-primary hover:bg-primary/90"
+                        >
+                          <Upload className="h-4 w-4 mr-2" />
+                          Publish
+                        </Button>
+                      )}
                     </td>
                   </tr>
                 ))}
