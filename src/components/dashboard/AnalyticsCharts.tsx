@@ -9,11 +9,28 @@ const generateMockData = (points: number = 20, maxValue: number = 100) => {
   }));
 };
 
+// Generate composite engagement data (same as RecapChart)
+const generateCompositeData = (points: number = 20) => {
+  return Array.from({ length: points }, (_, i) => {
+    const baseValue = 50;
+    const spike1 = i >= 15 && i <= 20 ? 40 : 0;
+    const spike2 = i >= 35 && i <= 40 ? 60 : 0;
+    const noise = Math.random() * 20 - 10;
+    
+    return {
+      time: i,
+      value: baseValue + spike1 + spike2 + noise,
+      composite: baseValue + spike1 + spike2 + noise,
+    };
+  });
+};
+
 // Empty data for disconnected state
 const generateEmptyData = (points: number = 20) => {
   return Array.from({ length: points }, (_, i) => ({
     time: i,
     value: 0,
+    composite: 0,
   }));
 };
 
@@ -25,7 +42,8 @@ const ChartCard = ({
   currentValue,
   yAxisDomain,
   yAxisTicks,
-  formatValue
+  formatValue,
+  compositeData
 }: {
   title: string;
   data: any[];
@@ -35,6 +53,7 @@ const ChartCard = ({
   yAxisDomain: [number, number];
   yAxisTicks: number[];
   formatValue: (value: number) => string;
+  compositeData: any[];
 }) => (
   <div className="bg-card rounded-2xl p-6 shadow-lg hover-lift chart-animate">
     <div className="flex items-center justify-between mb-4">
@@ -75,8 +94,23 @@ const ChartCard = ({
               borderRadius: '8px',
               fontSize: '12px'
             }}
-            formatter={(value: number) => [formatValue(value), title]}
+            formatter={(value: number, name: string) => [
+              formatValue(value), 
+              name === 'composite' ? 'Engagement Composite' : title
+            ]}
           />
+          {/* Engagement composite line (lighter weight) */}
+          <Line 
+            type="monotone" 
+            dataKey="composite" 
+            data={compositeData}
+            stroke="hsl(var(--primary))" 
+            strokeWidth={1}
+            dot={false}
+            opacity={0.6}
+            strokeDasharray="2 2"
+          />
+          {/* Main metric line */}
           <Line 
             type="monotone" 
             dataKey="value" 
@@ -92,10 +126,21 @@ const ChartCard = ({
 );
 
 const AnalyticsCharts = ({ isConnected }: { isConnected: boolean }) => {
+  // Generate composite data (same as RecapChart)
+  const compositeData = isConnected ? generateCompositeData(20) : generateEmptyData(20);
+  
   // Generate data with appropriate scales for each metric
   const commentsData = isConnected ? generateMockData(20, 1000) : generateEmptyData();
   const subscribersData = isConnected ? generateMockData(20, 1000) : generateEmptyData();
   const viewersData = isConnected ? generateMockData(20, 200000) : generateEmptyData();
+
+  // Scale composite data to fit each chart's Y-axis
+  const scaleCompositeForChart = (maxValue: number) => {
+    return compositeData.map(point => ({
+      ...point,
+      composite: (point.composite / 100) * maxValue * 0.8 // Scale composite (0-100) to chart range
+    }));
+  };
 
   // Format functions for different scales
   const formatNumber = (value: number) => value.toString();
@@ -120,6 +165,7 @@ const AnalyticsCharts = ({ isConnected }: { isConnected: boolean }) => {
           yAxisDomain={[0, 1000]}
           yAxisTicks={[0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]}
           formatValue={formatNumber}
+          compositeData={scaleCompositeForChart(1000)}
         />
         
         <ChartCard
@@ -131,6 +177,7 @@ const AnalyticsCharts = ({ isConnected }: { isConnected: boolean }) => {
           yAxisDomain={[0, 1000]}
           yAxisTicks={[0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]}
           formatValue={formatNumber}
+          compositeData={scaleCompositeForChart(1000)}
         />
         
         <ChartCard
@@ -142,6 +189,7 @@ const AnalyticsCharts = ({ isConnected }: { isConnected: boolean }) => {
           yAxisDomain={[0, 200000]}
           yAxisTicks={[0, 50000, 100000, 150000, 200000]}
           formatValue={formatViewers}
+          compositeData={scaleCompositeForChart(200000)}
         />
       </div>
     </section>
