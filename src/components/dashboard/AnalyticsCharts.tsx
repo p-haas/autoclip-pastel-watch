@@ -1,11 +1,11 @@
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
 import { TrendingUp, Users, Heart } from "lucide-react";
 
-// Mock data for the charts
-const generateMockData = (points: number = 20) => {
+// Mock data for the charts - updated to fit the new scales
+const generateMockData = (points: number = 20, maxValue: number = 100) => {
   return Array.from({ length: points }, (_, i) => ({
     time: i,
-    value: Math.floor(Math.random() * 100) + 20 + Math.sin(i * 0.5) * 30,
+    value: Math.floor(Math.random() * maxValue * 0.8) + maxValue * 0.1 + Math.sin(i * 0.5) * maxValue * 0.2,
   }));
 };
 
@@ -17,18 +17,24 @@ const generateEmptyData = (points: number = 20) => {
   }));
 };
 
-const ChartCard = ({
+const ChartCard = ({ 
   title, 
   data, 
   color, 
   icon: Icon, 
-  currentValue 
+  currentValue,
+  yAxisDomain,
+  yAxisTicks,
+  formatValue
 }: {
   title: string;
   data: any[];
   color: string;
   icon: any;
   currentValue: number;
+  yAxisDomain: [number, number];
+  yAxisTicks: number[];
+  formatValue: (value: number) => string;
 }) => (
   <div className="bg-card rounded-2xl p-6 shadow-lg hover-lift chart-animate">
     <div className="flex items-center justify-between mb-4">
@@ -38,7 +44,7 @@ const ChartCard = ({
         </div>
         <div>
           <h3 className="font-medium text-card-foreground">{title}</h3>
-          <p className="text-2xl font-bold text-primary mt-1">{currentValue}</p>
+          <p className="text-2xl font-bold text-primary mt-1">{formatValue(currentValue)}</p>
         </div>
       </div>
     </div>
@@ -51,8 +57,17 @@ const ChartCard = ({
             axisLine={false} 
             tickLine={false} 
             tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
+            domain={[0, 19]}
+            ticks={[0, 5, 10, 15, 19]}
           />
-          <YAxis hide />
+          <YAxis 
+            axisLine={false} 
+            tickLine={false}
+            tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
+            domain={yAxisDomain}
+            ticks={yAxisTicks}
+            tickFormatter={formatValue}
+          />
           <Tooltip 
             contentStyle={{
               backgroundColor: 'hsl(var(--card))',
@@ -60,6 +75,7 @@ const ChartCard = ({
               borderRadius: '8px',
               fontSize: '12px'
             }}
+            formatter={(value: number) => [formatValue(value), title]}
           />
           <Line 
             type="monotone" 
@@ -76,9 +92,19 @@ const ChartCard = ({
 );
 
 const AnalyticsCharts = ({ isConnected }: { isConnected: boolean }) => {
-  const commentsData = isConnected ? generateMockData() : generateEmptyData();
-  const subscribersData = isConnected ? generateMockData() : generateEmptyData();
-  const likesData = isConnected ? generateMockData() : generateEmptyData();
+  // Generate data with appropriate scales for each metric
+  const commentsData = isConnected ? generateMockData(20, 1000) : generateEmptyData();
+  const subscribersData = isConnected ? generateMockData(20, 1000) : generateEmptyData();
+  const viewersData = isConnected ? generateMockData(20, 200000) : generateEmptyData();
+
+  // Format functions for different scales
+  const formatNumber = (value: number) => value.toString();
+  const formatViewers = (value: number) => {
+    if (value >= 1000) {
+      return `${(value / 1000).toFixed(0)}K`;
+    }
+    return value.toString();
+  };
 
   return (
     <section className="mb-8">
@@ -90,7 +116,10 @@ const AnalyticsCharts = ({ isConnected }: { isConnected: boolean }) => {
           data={commentsData}
           color="dashboard-chart-primary"
           icon={TrendingUp}
-          currentValue={isConnected ? 42 : 0}
+          currentValue={isConnected ? 420 : 0}
+          yAxisDomain={[0, 1000]}
+          yAxisTicks={[0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]}
+          formatValue={formatNumber}
         />
         
         <ChartCard
@@ -98,15 +127,21 @@ const AnalyticsCharts = ({ isConnected }: { isConnected: boolean }) => {
           data={subscribersData}
           color="dashboard-chart-secondary"
           icon={Users}
-          currentValue={isConnected ? 18 : 0}
+          currentValue={isConnected ? 180 : 0}
+          yAxisDomain={[0, 1000]}
+          yAxisTicks={[0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]}
+          formatValue={formatNumber}
         />
         
         <ChartCard
           title="Viewers"
-          data={likesData}
+          data={viewersData}
           color="dashboard-chart-accent"
           icon={Heart}
-          currentValue={isConnected ? 156 : 0}
+          currentValue={isConnected ? 156000 : 0}
+          yAxisDomain={[0, 200000]}
+          yAxisTicks={[0, 50000, 100000, 150000, 200000]}
+          formatValue={formatViewers}
         />
       </div>
     </section>
