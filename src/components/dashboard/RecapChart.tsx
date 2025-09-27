@@ -1,60 +1,79 @@
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, ReferenceLine } from "recharts";
 import { Activity } from "lucide-react";
 
+// Convert timestamp to seconds for calculations
+const timeToSeconds = (timeStr: string) => {
+  const parts = timeStr.split(':').map(Number);
+  return parts[0] * 3600 + parts[1] * 60 + parts[2];
+};
+
+// Convert seconds to timestamp string
+const secondsToTime = (seconds: number) => {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = seconds % 60;
+  return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+};
+
+// Stream duration: 2:45:12 = 9912 seconds
+const STREAM_DURATION = timeToSeconds("2:45:12");
+
 // Mock data combining all metrics
 const generateRecapData = () => {
   return Array.from({ length: 50 }, (_, i) => {
+    const timeInSeconds = (i / 49) * STREAM_DURATION;
     const baseValue = 50;
-    const spike1 = i >= 15 && i <= 20 ? 40 : 0;
-    const spike2 = i >= 35 && i <= 40 ? 60 : 0;
+    const spike1 = i >= 35 && i <= 40 ? 40 : 0; // Around 2:34:12
+    const spike2 = i >= 30 && i <= 35 ? 30 : 0; // Around 2:28:45
+    const spike3 = i >= 25 && i <= 30 ? 25 : 0; // Around 2:15:33
+    const spike4 = i >= 20 && i <= 25 ? 20 : 0; // Around 1:58:21
     const noise = Math.random() * 20 - 10;
     
     return {
-      time: i,
-      composite: baseValue + spike1 + spike2 + noise,
-      comments: 30 + Math.sin(i * 0.3) * 15 + noise * 0.5,
-      subscribers: 20 + Math.cos(i * 0.2) * 10 + noise * 0.3,
-      likes: 40 + Math.sin(i * 0.4) * 20 + noise * 0.7,
+      time: Math.floor(timeInSeconds),
+      timeDisplay: secondsToTime(Math.floor(timeInSeconds)),
+      composite: baseValue + spike1 + spike2 + spike3 + spike4 + noise,
     };
   });
 };
 
 // Empty data for disconnected state
 const generateEmptyRecapData = () => {
-  return Array.from({ length: 50 }, (_, i) => ({
-    time: i,
-    composite: 0,
-    comments: 0,
-    subscribers: 0,
-    likes: 0,
-  }));
+  return Array.from({ length: 50 }, (_, i) => {
+    const timeInSeconds = (i / 49) * STREAM_DURATION;
+    return {
+      time: Math.floor(timeInSeconds),
+      timeDisplay: secondsToTime(Math.floor(timeInSeconds)),
+      composite: 0,
+    };
+  });
 };
 
 const RecapChart = ({ isConnected }: { isConnected: boolean }) => {
   const recapData = isConnected ? generateRecapData() : generateEmptyRecapData();
   
-  // Mock clip markers with thumbnails based on timestamps from ClipsTable
+  // Mock clip markers with thumbnails - using exact timestamps from ClipsTable
   const clipMarkers = isConnected ? [
     { 
-      time: 12, 
+      time: timeToSeconds("2:34:12"), 
       composite: 85, 
       timestamp: "2:34:12",
       thumbnail: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=160&h=90&fit=crop&crop=center"
     },
     { 
-      time: 8, 
+      time: timeToSeconds("2:28:45"), 
       composite: 78, 
       timestamp: "2:28:45",
       thumbnail: "https://images.unsplash.com/photo-1614680376573-df3480f75bff?w=160&h=90&fit=crop&crop=center"
     },
     { 
-      time: 6, 
+      time: timeToSeconds("2:15:33"), 
       composite: 72, 
       timestamp: "2:15:33",
       thumbnail: "https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=160&h=90&fit=crop&crop=center"
     },
     { 
-      time: 4, 
+      time: timeToSeconds("1:58:21"), 
       composite: 68, 
       timestamp: "1:58:21",
       thumbnail: "https://images.unsplash.com/photo-1614680376408-81e91ffe3db7?w=160&h=90&fit=crop&crop=center"
@@ -81,6 +100,9 @@ const RecapChart = ({ isConnected }: { isConnected: boolean }) => {
                 axisLine={false} 
                 tickLine={false}
                 tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
+                domain={[0, STREAM_DURATION]}
+                type="number"
+                tickFormatter={(value) => secondsToTime(value)}
               />
               <YAxis 
                 axisLine={false} 
@@ -95,7 +117,7 @@ const RecapChart = ({ isConnected }: { isConnected: boolean }) => {
                   borderRadius: '8px',
                   fontSize: '12px'
                 }}
-                labelFormatter={(value) => `Time: ${value}s`}
+                labelFormatter={(value) => `Time: ${secondsToTime(value)}`}
               />
               
               {/* Vertical lines for clips */}
@@ -123,7 +145,7 @@ const RecapChart = ({ isConnected }: { isConnected: boolean }) => {
           
           {/* Clip previews positioned absolutely */}
           {clipMarkers.map((marker, index) => {
-            const leftPosition = ((marker.time / 49) * 100); // Assuming 50 data points (0-49)
+            const leftPosition = ((marker.time / STREAM_DURATION) * 100);
             return (
               <div
                 key={`preview-${index}`}

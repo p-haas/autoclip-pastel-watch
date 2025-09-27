@@ -1,37 +1,66 @@
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
 import { TrendingUp, Users, Heart } from "lucide-react";
 
-// Mock data for the charts - updated to fit the new scales
-const generateMockData = (points: number = 20, maxValue: number = 100) => {
-  return Array.from({ length: points }, (_, i) => ({
-    time: i,
-    value: Math.floor(Math.random() * maxValue * 0.8) + maxValue * 0.1 + Math.sin(i * 0.5) * maxValue * 0.2,
-  }));
+// Convert timestamp to seconds for calculations
+const timeToSeconds = (timeStr: string) => {
+  const parts = timeStr.split(':').map(Number);
+  return parts[0] * 3600 + parts[1] * 60 + parts[2]; // hours * 3600 + minutes * 60 + seconds
+};
+
+// Convert seconds to timestamp string
+const secondsToTime = (seconds: number) => {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = seconds % 60;
+  return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+};
+
+// Stream duration: 2:45:12 = 9912 seconds
+const STREAM_DURATION = timeToSeconds("2:45:12");
+
+// Mock data for the charts - updated to use real timeline
+const generateMockData = (points: number = 50, maxValue: number = 100) => {
+  return Array.from({ length: points }, (_, i) => {
+    const timeInSeconds = (i / (points - 1)) * STREAM_DURATION;
+    return {
+      time: Math.floor(timeInSeconds),
+      timeDisplay: secondsToTime(Math.floor(timeInSeconds)),
+      value: Math.floor(Math.random() * maxValue * 0.8) + maxValue * 0.1 + Math.sin(i * 0.5) * maxValue * 0.2,
+    };
+  });
 };
 
 // Generate composite engagement data (same as RecapChart)
-const generateCompositeData = (points: number = 20) => {
+const generateCompositeData = (points: number = 50) => {
   return Array.from({ length: points }, (_, i) => {
+    const timeInSeconds = (i / (points - 1)) * STREAM_DURATION;
     const baseValue = 50;
-    const spike1 = i >= 15 && i <= 20 ? 40 : 0;
-    const spike2 = i >= 35 && i <= 40 ? 60 : 0;
+    const spike1 = i >= 35 && i <= 40 ? 40 : 0; // Around 2:34:12
+    const spike2 = i >= 30 && i <= 35 ? 30 : 0; // Around 2:28:45
+    const spike3 = i >= 25 && i <= 30 ? 25 : 0; // Around 2:15:33
+    const spike4 = i >= 20 && i <= 25 ? 20 : 0; // Around 1:58:21
     const noise = Math.random() * 20 - 10;
     
     return {
-      time: i,
-      value: baseValue + spike1 + spike2 + noise,
-      composite: baseValue + spike1 + spike2 + noise,
+      time: Math.floor(timeInSeconds),
+      timeDisplay: secondsToTime(Math.floor(timeInSeconds)),
+      value: baseValue + spike1 + spike2 + spike3 + spike4 + noise,
+      composite: baseValue + spike1 + spike2 + spike3 + spike4 + noise,
     };
   });
 };
 
 // Empty data for disconnected state
-const generateEmptyData = (points: number = 20) => {
-  return Array.from({ length: points }, (_, i) => ({
-    time: i,
-    value: 0,
-    composite: 0,
-  }));
+const generateEmptyData = (points: number = 50) => {
+  return Array.from({ length: points }, (_, i) => {
+    const timeInSeconds = (i / (points - 1)) * STREAM_DURATION;
+    return {
+      time: Math.floor(timeInSeconds),
+      timeDisplay: secondsToTime(Math.floor(timeInSeconds)),
+      value: 0,
+      composite: 0,
+    };
+  });
 };
 
 const ChartCard = ({ 
@@ -76,8 +105,10 @@ const ChartCard = ({
             axisLine={false} 
             tickLine={false} 
             tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
-            domain={[0, 19]}
-            ticks={[0, 5, 10, 15, 19]}
+            domain={[0, STREAM_DURATION]}
+            type="number"
+            tickFormatter={(value) => secondsToTime(value)}
+            ticks={[0, STREAM_DURATION * 0.25, STREAM_DURATION * 0.5, STREAM_DURATION * 0.75, STREAM_DURATION]}
           />
           <YAxis 
             axisLine={false} 
@@ -98,6 +129,7 @@ const ChartCard = ({
               formatValue(value), 
               name === 'composite' ? 'Engagement Composite' : title
             ]}
+            labelFormatter={(value) => `Time: ${secondsToTime(value)}`}
           />
           {/* Engagement composite line (lighter weight) */}
           <Line 
@@ -126,13 +158,13 @@ const ChartCard = ({
 );
 
 const AnalyticsCharts = ({ isConnected }: { isConnected: boolean }) => {
-  // Generate composite data (same as RecapChart)
-  const compositeData = isConnected ? generateCompositeData(20) : generateEmptyData(20);
+  // Generate composite data (same timeline as RecapChart)
+  const compositeData = isConnected ? generateCompositeData(50) : generateEmptyData(50);
   
   // Generate data with appropriate scales for each metric
-  const commentsData = isConnected ? generateMockData(20, 1000) : generateEmptyData();
-  const subscribersData = isConnected ? generateMockData(20, 1000) : generateEmptyData();
-  const viewersData = isConnected ? generateMockData(20, 200000) : generateEmptyData();
+  const commentsData = isConnected ? generateMockData(50, 1000) : generateEmptyData();
+  const subscribersData = isConnected ? generateMockData(50, 1000) : generateEmptyData();
+  const viewersData = isConnected ? generateMockData(50, 200000) : generateEmptyData();
 
   // Scale composite data to fit each chart's Y-axis
   const scaleCompositeForChart = (maxValue: number) => {
