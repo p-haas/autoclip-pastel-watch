@@ -105,10 +105,10 @@ const ChartCard = ({
             dataKey="composite" 
             data={compositeData}
             stroke="hsl(var(--primary))" 
-            strokeWidth={1}
+            strokeWidth={1.5}
             dot={false}
-            opacity={0.6}
-            strokeDasharray="2 2"
+            opacity={0.8}
+            strokeDasharray="3 3"
           />
           {/* Main metric line */}
           <Line 
