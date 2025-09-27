@@ -13,12 +13,23 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        dashboard: {
+          bg: "hsl(var(--dashboard-bg))",
+          'chart-grid': "hsl(var(--chart-grid))",
+          'chart-primary': "hsl(var(--chart-primary))",
+          'chart-secondary': "hsl(var(--chart-secondary))",
+          'chart-accent': "hsl(var(--chart-accent))",
+          'shadow-soft': "hsl(var(--shadow-soft))",
+        },
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
