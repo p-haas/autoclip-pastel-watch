@@ -25,51 +25,55 @@ const ChartCard = ({
   color: string;
   icon: any;
   currentValue: number;
-}) => (
-  <div className="bg-card rounded-2xl p-6 shadow-lg hover-lift chart-animate">
-    <div className="flex items-center justify-between mb-4">
-      <div className="flex items-center gap-3">
-        <div className={`p-2 rounded-lg bg-gradient-to-br from-${color}/20 to-${color}/10`}>
-          <Icon className={`h-5 w-5 text-${color}`} />
-        </div>
-        <div>
-          <h3 className="font-medium text-card-foreground">{title}</h3>
-          <p className="text-2xl font-bold text-primary mt-1">{currentValue}</p>
+}) => {
+  const colorClass = `dashboard-${color}`;
+  
+  return (
+    <div className="bg-card rounded-2xl p-6 shadow-lg hover-lift chart-animate">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <div className={`p-2 rounded-lg bg-gradient-to-br from-${colorClass}/20 to-${colorClass}/10`}>
+            <Icon className={`h-5 w-5 text-${colorClass}`} />
+          </div>
+          <div>
+            <h3 className="font-medium text-card-foreground">{title}</h3>
+            <p className="text-2xl font-bold text-primary mt-1">{currentValue}</p>
+          </div>
         </div>
       </div>
+      
+      <div className="h-32">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={data}>
+            <XAxis 
+              dataKey="time" 
+              axisLine={false} 
+              tickLine={false} 
+              tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
+            />
+            <YAxis hide />
+            <Tooltip 
+              contentStyle={{
+                backgroundColor: 'hsl(var(--card))',
+                border: '1px solid hsl(var(--border))',
+                borderRadius: '8px',
+                fontSize: '12px'
+              }}
+            />
+            <Line 
+              type="monotone" 
+              dataKey="value" 
+              stroke={`hsl(var(--${color}))`} 
+              strokeWidth={2}
+              dot={false}
+              activeDot={{ r: 4, fill: `hsl(var(--${color}))` }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
     </div>
-    
-    <div className="h-32">
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data}>
-          <XAxis 
-            dataKey="time" 
-            axisLine={false} 
-            tickLine={false} 
-            tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
-          />
-          <YAxis hide />
-          <Tooltip 
-            contentStyle={{
-              backgroundColor: 'hsl(var(--card))',
-              border: '1px solid hsl(var(--border))',
-              borderRadius: '8px',
-              fontSize: '12px'
-            }}
-          />
-          <Line 
-            type="monotone" 
-            dataKey="value" 
-            stroke={`hsl(var(--${color}))`} 
-            strokeWidth={2}
-            dot={false}
-            activeDot={{ r: 4, fill: `hsl(var(--${color}))` }}
-          />
-        </LineChart>
-      </ResponsiveContainer>
-    </div>
-  </div>
-);
+  );
+};
 
 const AnalyticsCharts = () => {
   return (
@@ -80,7 +84,7 @@ const AnalyticsCharts = () => {
         <ChartCard
           title="Comments per second"
           data={commentsData}
-          color="dashboard-chart-primary"
+          color="chart-primary"
           icon={TrendingUp}
           currentValue={42}
         />
@@ -88,7 +92,7 @@ const AnalyticsCharts = () => {
         <ChartCard
           title="New subscribers per minute"
           data={subscribersData}
-          color="dashboard-chart-secondary"
+          color="chart-secondary"
           icon={Users}
           currentValue={18}
         />
@@ -96,7 +100,7 @@ const AnalyticsCharts = () => {
         <ChartCard
           title="Likes per minute"
           data={likesData}
-          color="dashboard-chart-accent"
+          color="chart-accent"
           icon={Heart}
           currentValue={156}
         />
