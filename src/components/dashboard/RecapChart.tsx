@@ -1,4 +1,4 @@
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
+import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, ReferenceLine } from "recharts";
 import { Activity } from "lucide-react";
 
 // Mock data combining all metrics
@@ -33,12 +33,32 @@ const generateEmptyRecapData = () => {
 const RecapChart = ({ isConnected }: { isConnected: boolean }) => {
   const recapData = isConnected ? generateRecapData() : generateEmptyRecapData();
   
-  // Mock clip markers based on timestamps from ClipsTable
+  // Mock clip markers with thumbnails based on timestamps from ClipsTable
   const clipMarkers = isConnected ? [
-    { time: 12, composite: 85, timestamp: "2:34:12" }, // Comments spike
-    { time: 8, composite: 78, timestamp: "2:28:45" },  // Likes surge  
-    { time: 6, composite: 72, timestamp: "2:15:33" },  // Subscriber peak
-    { time: 4, composite: 68, timestamp: "1:58:21" }   // Comments spike
+    { 
+      time: 12, 
+      composite: 85, 
+      timestamp: "2:34:12",
+      thumbnail: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=160&h=90&fit=crop&crop=center"
+    },
+    { 
+      time: 8, 
+      composite: 78, 
+      timestamp: "2:28:45",
+      thumbnail: "https://images.unsplash.com/photo-1614680376573-df3480f75bff?w=160&h=90&fit=crop&crop=center"
+    },
+    { 
+      time: 6, 
+      composite: 72, 
+      timestamp: "2:15:33",
+      thumbnail: "https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=160&h=90&fit=crop&crop=center"
+    },
+    { 
+      time: 4, 
+      composite: 68, 
+      timestamp: "1:58:21",
+      thumbnail: "https://images.unsplash.com/photo-1614680376408-81e91ffe3db7?w=160&h=90&fit=crop&crop=center"
+    }
   ] : [];
   return (
     <section className="mb-8">
@@ -53,7 +73,7 @@ const RecapChart = ({ isConnected }: { isConnected: boolean }) => {
           </div>
         </div>
         
-        <div className="h-64">
+        <div className="h-64 relative">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={recapData}>
               <XAxis 
@@ -78,31 +98,16 @@ const RecapChart = ({ isConnected }: { isConnected: boolean }) => {
                 labelFormatter={(value) => `Time: ${value}s`}
               />
               
-              {/* Individual metric lines */}
-              <Line 
-                type="monotone" 
-                dataKey="comments" 
-                stroke="hsl(var(--dashboard-chart-primary))" 
-                strokeWidth={1}
-                dot={false}
-                opacity={0.6}
-              />
-              <Line 
-                type="monotone" 
-                dataKey="subscribers" 
-                stroke="hsl(var(--dashboard-chart-secondary))" 
-                strokeWidth={1}
-                dot={false}
-                opacity={0.6}
-              />
-              <Line 
-                type="monotone" 
-                dataKey="likes" 
-                stroke="hsl(var(--dashboard-chart-accent))" 
-                strokeWidth={1}
-                dot={false}
-                opacity={0.6}
-              />
+              {/* Vertical lines for clips */}
+              {clipMarkers.map((marker, index) => (
+                <ReferenceLine
+                  key={`clip-line-${index}`}
+                  x={marker.time}
+                  stroke="hsl(var(--destructive))"
+                  strokeWidth={2}
+                  strokeDasharray="none"
+                />
+              ))}
               
               {/* Main composite line */}
               <Line 
@@ -113,48 +118,39 @@ const RecapChart = ({ isConnected }: { isConnected: boolean }) => {
                 dot={false}
                 activeDot={{ r: 6, fill: 'hsl(var(--primary))' }}
               />
-              
-              {/* Clip markers */}
-              {clipMarkers.map((marker, index) => (
-                <Line
-                  key={`clip-${index}`}
-                  type="monotone"
-                  dataKey="composite"
-                  data={[marker]}
-                  stroke="hsl(var(--destructive))"
-                  strokeWidth={0}
-                  dot={{ 
-                    r: 6, 
-                    fill: 'hsl(var(--destructive))', 
-                    stroke: 'hsl(var(--background))',
-                    strokeWidth: 2
-                  }}
-                />
-              ))}
             </LineChart>
           </ResponsiveContainer>
+          
+          {/* Clip previews positioned absolutely */}
+          {clipMarkers.map((marker, index) => {
+            const leftPosition = ((marker.time / 49) * 100); // Assuming 50 data points (0-49)
+            return (
+              <div
+                key={`preview-${index}`}
+                className="absolute top-0 transform -translate-x-1/2"
+                style={{ left: `${leftPosition}%` }}
+              >
+                <div className="bg-card border border-destructive rounded-lg p-2 shadow-lg">
+                  <img 
+                    src={marker.thumbnail}
+                    alt="Clip preview"
+                    className="w-16 h-9 object-cover rounded"
+                  />
+                  <p className="text-xs text-center mt-1 font-mono">{marker.timestamp}</p>
+                </div>
+              </div>
+            );
+          })}
         </div>
         
         {/* Legend */}
         <div className="flex flex-wrap gap-6 mt-4 text-sm">
           <div className="flex items-center gap-2">
-            <div className="w-3 h-0.5 bg-dashboard-chart-primary"></div>
-            <span className="text-muted-foreground">Comments</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-0.5 bg-dashboard-chart-secondary"></div>
-            <span className="text-muted-foreground">Subscribers</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-0.5 bg-dashboard-chart-accent"></div>
-            <span className="text-muted-foreground">Likes</span>
-          </div>
-          <div className="flex items-center gap-2">
             <div className="w-3 h-0.5 bg-primary"></div>
             <span className="text-muted-foreground font-medium">Composite Score</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-destructive rounded-full"></div>
+            <div className="w-0.5 h-3 bg-destructive"></div>
             <span className="text-muted-foreground">Generated Clips</span>
           </div>
         </div>
