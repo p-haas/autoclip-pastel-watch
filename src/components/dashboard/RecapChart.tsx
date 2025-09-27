@@ -149,16 +149,16 @@ const RecapChart = ({ isConnected }: { isConnected: boolean }) => {
             return (
               <div
                 key={`preview-${index}`}
-                className="absolute top-0 transform -translate-x-1/2"
+                className="absolute top-[-50px] transform -translate-x-1/2"
                 style={{ left: `${leftPosition}%` }}
               >
-                <div className="bg-card border border-destructive rounded-lg p-2 shadow-lg">
+                <div className="bg-card border border-destructive rounded-lg p-1 shadow-lg">
                   <img 
                     src={marker.thumbnail}
                     alt="Clip preview"
-                    className="w-16 h-9 object-cover rounded"
+                    className="w-10 h-6 object-cover rounded"
                   />
-                  <p className="text-xs text-center mt-1 font-mono">{marker.timestamp}</p>
+                  <p className="text-[10px] text-center mt-0.5 font-mono">{marker.timestamp}</p>
                 </div>
               </div>
             );
