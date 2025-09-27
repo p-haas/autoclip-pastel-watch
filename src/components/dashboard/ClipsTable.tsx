@@ -208,7 +208,7 @@ const ClipsTable = ({ isConnected }: { isConnected: boolean }) => {
                           variant="outline"
                         >
                           <TrendingUp className="h-4 w-4 mr-2" />
-                          View Analytics
+                          Analytics
                         </Button>
                       ) : (
                         <Button 
