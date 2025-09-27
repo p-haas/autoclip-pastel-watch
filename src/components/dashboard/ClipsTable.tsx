@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Play, Download, Edit, Share2, Upload, MoreHorizontal, Clock, TrendingUp } from "lucide-react";
+import { Play, Download, Edit, Share2, Upload, MoreHorizontal, Clock, TrendingUp, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -8,6 +8,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
 
 // Mock data for clips
 const mockClips = [
@@ -55,11 +62,42 @@ const mockClips = [
 
 const ClipsTable = ({ isConnected }: { isConnected: boolean }) => {
   const [clips, setClips] = useState(isConnected ? mockClips : []);
+  const [selectedClip, setSelectedClip] = useState<any>(null);
+  const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
+  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
 
   // Update clips when connection changes
   useEffect(() => {
     setClips(isConnected ? mockClips : []);
   }, [isConnected]);
+
+  const socialPlatforms = [
+    { id: 'twitter', name: 'Twitter', icon: '𝕏' },
+    { id: 'instagram', name: 'Instagram', icon: '📷' },
+    { id: 'tiktok', name: 'TikTok', icon: '🎵' },
+    { id: 'youtube', name: 'YouTube Shorts', icon: '▶️' },
+    { id: 'facebook', name: 'Facebook', icon: '📘' }
+  ];
+
+  const handlePublish = (clip: any) => {
+    setSelectedClip(clip);
+    setIsPublishModalOpen(true);
+    setSelectedPlatforms([]);
+  };
+
+  const handlePlatformToggle = (platformId: string) => {
+    setSelectedPlatforms(prev => 
+      prev.includes(platformId) 
+        ? prev.filter(id => id !== platformId)
+        : [...prev, platformId]
+    );
+  };
+
+  const handlePublishToSocial = () => {
+    console.log('Publishing clip:', selectedClip.id, 'to platforms:', selectedPlatforms);
+    // Add publish logic here
+    setIsPublishModalOpen(false);
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -156,35 +194,15 @@ const ClipsTable = ({ isConnected }: { isConnected: boolean }) => {
                       </Badge>
                     </td>
                     <td className="p-4">
-                      <div className="flex items-center gap-2">
-                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
-                          <Play className="h-4 w-4" />
-                        </Button>
-                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
-                          <Download className="h-4 w-4" />
-                        </Button>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem>
-                              <Edit className="h-4 w-4 mr-2" />
-                              Open in Editor
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              <Share2 className="h-4 w-4 mr-2" />
-                              Share
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              <Upload className="h-4 w-4 mr-2" />
-                              Post to Social Media
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
+                      <Button 
+                        size="sm" 
+                        onClick={() => handlePublish(clip)}
+                        disabled={clip.status !== 'Ready'}
+                        className="bg-primary hover:bg-primary/90"
+                      >
+                        <Upload className="h-4 w-4 mr-2" />
+                        Publish
+                      </Button>
                     </td>
                   </tr>
                 ))}
@@ -198,6 +216,83 @@ const ClipsTable = ({ isConnected }: { isConnected: boolean }) => {
             </div>
           )}
         </div>
+
+        {/* Publish Modal */}
+        <Dialog open={isPublishModalOpen} onOpenChange={setIsPublishModalOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Publish Clip</DialogTitle>
+            </DialogHeader>
+            
+            {selectedClip && (
+              <div className="space-y-6">
+                {/* Clip Preview */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">Clip Preview</h3>
+                  <div className="bg-muted rounded-lg p-4">
+                    <div className="flex items-center gap-4">
+                      <div className="relative">
+                        <img 
+                          src={selectedClip.thumbnail} 
+                          alt="Clip thumbnail"
+                          className="w-32 h-18 object-cover rounded-lg"
+                        />
+                        <div className="absolute inset-0 bg-black/30 rounded-lg flex items-center justify-center">
+                          <Play className="h-6 w-6 text-white" fill="currentColor" />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <p className="font-mono text-sm">Timestamp: {selectedClip.timestamp}</p>
+                        <p className="font-mono text-sm">Duration: {selectedClip.duration}</p>
+                        <p className="text-sm">Peak: {selectedClip.peakMetric}</p>
+                        <p className="text-sm">Score: <span className={getScoreColor(selectedClip.score)}>{selectedClip.score}</span></p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Social Media Selection */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">Select Platforms</h3>
+                  <div className="grid grid-cols-2 gap-3">
+                    {socialPlatforms.map((platform) => (
+                      <div key={platform.id} className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-muted/50 transition-colors">
+                        <Checkbox 
+                          id={platform.id}
+                          checked={selectedPlatforms.includes(platform.id)}
+                          onCheckedChange={() => handlePlatformToggle(platform.id)}
+                        />
+                        <label 
+                          htmlFor={platform.id} 
+                          className="flex items-center gap-2 cursor-pointer text-sm font-medium flex-1"
+                        >
+                          <span className="text-lg">{platform.icon}</span>
+                          {platform.name}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex justify-end gap-3 pt-4 border-t">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setIsPublishModalOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    onClick={handlePublishToSocial}
+                    disabled={selectedPlatforms.length === 0}
+                  >
+                    Publish to {selectedPlatforms.length} platform{selectedPlatforms.length !== 1 ? 's' : ''}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </section>
   );
