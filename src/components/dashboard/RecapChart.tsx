@@ -125,7 +125,7 @@ const RecapChart = ({ isConnected }: { isConnected: boolean }) => {
                 <ReferenceLine
                   key={`clip-line-${index}`}
                   x={marker.time}
-                  stroke="hsl(var(--destructive))"
+                  stroke="hsl(280 50% 70%)"
                   strokeWidth={2}
                   strokeDasharray="none"
                 />
@@ -152,7 +152,7 @@ const RecapChart = ({ isConnected }: { isConnected: boolean }) => {
                 className="absolute top-2 transform -translate-x-1/2 z-10"
                 style={{ left: `${leftPosition}%` }}
               >
-                <div className="bg-card border border-destructive rounded-lg p-1 shadow-lg">
+                <div className="bg-card rounded-lg p-1 shadow-lg" style={{ borderWidth: '2px', borderColor: 'hsl(280 50% 70%)' }}>
                   <img 
                     src={marker.thumbnail}
                     alt="Clip preview"
@@ -162,7 +162,6 @@ const RecapChart = ({ isConnected }: { isConnected: boolean }) => {
                       e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iNDUiIHZpZXdCb3g9IjAgMCA4MCA0NSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iODAiIGhlaWdodD0iNDUiIGZpbGw9IiNGM0Y0RjYiLz48dGV4dCB4PSI0MCIgeT0iMjQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM2RjczODAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiI+Q2xpcDwvdGV4dD48L3N2Zz4=';
                     }}
                   />
-                  <p className="text-[10px] text-center mt-0.5 font-mono">{marker.timestamp}</p>
                 </div>
               </div>
             );
@@ -176,7 +175,7 @@ const RecapChart = ({ isConnected }: { isConnected: boolean }) => {
             <span className="text-muted-foreground font-medium">Composite Score</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-0.5 h-3 bg-destructive"></div>
+            <div className="w-0.5 h-3" style={{ backgroundColor: 'hsl(280 50% 70%)' }}></div>
             <span className="text-muted-foreground">Generated Clips</span>
           </div>
         </div>
