@@ -6,8 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import demoVideo from "@/assets/demo-video.mp4";
 
-const VideoSection = () => {
-  const [isConnected, setIsConnected] = useState(false);
+const VideoSection = ({ isConnected, setIsConnected }: { isConnected: boolean; setIsConnected: (value: boolean) => void }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [credentials, setCredentials] = useState({ username: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);

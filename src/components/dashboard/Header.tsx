@@ -11,15 +11,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const Header = () => {
+const Header = ({ onLogoClick }: { onLogoClick: () => void }) => {
   return (
     <header className="bg-card border-b border-border px-6 py-4 mb-8">
       <div className="flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center">
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            WaveShort
-          </h1>
+          <button onClick={onLogoClick} className="cursor-pointer">
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent hover:opacity-80 transition-opacity">
+              WaveShort
+            </h1>
+          </button>
         </div>
 
         {/* User Profile */}
