@@ -1,4 +1,4 @@
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, ReferenceLine } from "recharts";
+import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
 import { Activity } from "lucide-react";
 
 // Mock data combining all metrics
@@ -32,6 +32,14 @@ const generateEmptyRecapData = () => {
 
 const RecapChart = ({ isConnected }: { isConnected: boolean }) => {
   const recapData = isConnected ? generateRecapData() : generateEmptyRecapData();
+  
+  // Mock clip markers based on timestamps from ClipsTable
+  const clipMarkers = isConnected ? [
+    { time: 12, composite: 85, timestamp: "2:34:12" }, // Comments spike
+    { time: 8, composite: 78, timestamp: "2:28:45" },  // Likes surge  
+    { time: 6, composite: 72, timestamp: "2:15:33" },  // Subscriber peak
+    { time: 4, composite: 68, timestamp: "1:58:21" }   // Comments spike
+  ] : [];
   return (
     <section className="mb-8">
       <div className="bg-card rounded-2xl p-6 shadow-lg hover-lift">
@@ -41,7 +49,7 @@ const RecapChart = ({ isConnected }: { isConnected: boolean }) => {
           </div>
           <div>
             <h2 className="text-xl font-bold text-card-foreground">Engagement Composite</h2>
-            <p className="text-muted-foreground">Combined metrics with clip-worthy threshold</p>
+            <p className="text-muted-foreground">Combined metrics with generated clip markers</p>
           </div>
         </div>
         
@@ -58,14 +66,6 @@ const RecapChart = ({ isConnected }: { isConnected: boolean }) => {
                 axisLine={false} 
                 tickLine={false}
                 tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
-              />
-              
-              {/* Threshold line for clip-worthy moments */}
-              <ReferenceLine 
-                y={80} 
-                stroke="hsl(var(--destructive))" 
-                strokeDasharray="5 5"
-                label={{ value: "Clip Threshold", position: "top", fontSize: 12 }}
               />
               
               <Tooltip 
@@ -113,6 +113,24 @@ const RecapChart = ({ isConnected }: { isConnected: boolean }) => {
                 dot={false}
                 activeDot={{ r: 6, fill: 'hsl(var(--primary))' }}
               />
+              
+              {/* Clip markers */}
+              {clipMarkers.map((marker, index) => (
+                <Line
+                  key={`clip-${index}`}
+                  type="monotone"
+                  dataKey="composite"
+                  data={[marker]}
+                  stroke="hsl(var(--destructive))"
+                  strokeWidth={0}
+                  dot={{ 
+                    r: 6, 
+                    fill: 'hsl(var(--destructive))', 
+                    stroke: 'hsl(var(--background))',
+                    strokeWidth: 2
+                  }}
+                />
+              ))}
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -134,6 +152,10 @@ const RecapChart = ({ isConnected }: { isConnected: boolean }) => {
           <div className="flex items-center gap-2">
             <div className="w-3 h-0.5 bg-primary"></div>
             <span className="text-muted-foreground font-medium">Composite Score</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-destructive rounded-full"></div>
+            <span className="text-muted-foreground">Generated Clips</span>
           </div>
         </div>
       </div>
